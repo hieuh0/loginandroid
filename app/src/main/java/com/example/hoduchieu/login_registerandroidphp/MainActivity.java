@@ -22,13 +22,15 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
     EditText edtName,edtMail,edtPass;
     Button btnRegister,btnLogin;
-    String URL = "http://192.168.1.104/loginandroid/register.php";
+    String URL = "http://192.168.1.101/loginandroid/register.php";
     RequestQueue requestQueue;
-    String URL_LOGIN ="http://192.168.1.104/loginandroid/login.php";
+    String URL_LOGIN ="http://192.168.1.101/loginandroid/login.php";
+    SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sessionManager = new SessionManager(getApplication());
         edtName = (EditText) findViewById(R.id.edtName);
         edtMail = (EditText) findViewById(R.id.edtEmail);
         edtPass = (EditText) findViewById(R.id.edtPass);
@@ -77,9 +79,11 @@ public class MainActivity extends AppCompatActivity {
                         //
                         String s = response.trim();
                         if(s.equalsIgnoreCase("OK")){
+                            sessionManager.SetLogin(true);
                             Intent intent = new Intent(getApplication(),Main2Activity.class);
                             intent.putExtra("EMAIL",email);
                             startActivity(intent);
+                            finish();
                         }else
                         {
                             Toast.makeText(MainActivity.this,"That Bai", Toast.LENGTH_SHORT).show();
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 }){
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String,String> params = new HashMap<String, String>();
+                        Map<String,String> params = new HashMap<>();
 
 
                         params.put("Email",email);
@@ -106,5 +110,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        CheckLogin();
+
+    }
+
+    private void CheckLogin(){
+        if(!sessionManager.Check()){
+            Toast.makeText(this, "Vui Long Dang Nhap", Toast.LENGTH_SHORT).show();
+        }else {
+            Intent intent = new Intent(getApplication(),Main2Activity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }
